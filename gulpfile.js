@@ -15,6 +15,8 @@ const del = require('del');
 const bs = require('browser-sync');
 const pngquant = require('imagemin-pngquant');
 const mozjpeg = require('imagemin-mozjpeg');
+const connect = require('gulp-connect-php');
+const browserSync = require('browser-sync');
 
 const $ = require('gulp-load-plugins')();
 
@@ -42,6 +44,10 @@ const paths = {
     },
     html: {
         src: `${proj.dev}/**/*.html`,
+        dest: `${proj.pro}/`,
+    },
+    php:{
+        src: `${proj.dev}/**/*.php`,
         dest: `${proj.pro}/`,
     },
     image: {
@@ -118,7 +124,10 @@ const production = (done) => {
     src(paths.html.src) // コピー
         .pipe($.plumber())
         .pipe(dest(paths.html.dest));
-
+    // php
+    src(paths.php.src)
+        .pipe($.plumber())
+        .pipe(dest(paths.php.dest));
     // image
     src(paths.image.src) // 圧縮、コピー
         .pipe($.plumber())
@@ -163,13 +172,14 @@ const production = (done) => {
 
 
 const bsInit = (done) => {
-    bs.init({
-        server: {
-            baseDir: bsConf.base,
-        },
-        startPath: bsConf.start,
-        notify: false,
-        open: 'external',
+    connect.server({
+        base:'./dist',
+        bin: 'C:/xampp/php/php.exe',
+        ini: 'C:/xampp/php/php.ini'
+    }, function(){
+        browserSync({
+            proxy: 'localhost:8000'
+        });
     });
 
     done();
